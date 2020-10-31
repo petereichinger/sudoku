@@ -33,7 +33,7 @@ class TestPuzzle(TestCase):
     def test_valid_possibilities(self):
         p = Puzzle.from_string("1,2,3,4,5,6,7,8,9")
         for x in range(1, 10):
-            self.assertEqual({x}, p.get(Coordinate(x, 1)))
+            self.assertEqual(x, p.get(Coordinate(x, 1)))
         for x in range(1, 4):
             self.assertEqual({4, 5, 6, 7, 8, 9}, p.get(Coordinate(x, 2)))
 
@@ -97,4 +97,4 @@ class TestPuzzle(TestCase):
             for y in range(1, 10):
                 coordinate = Coordinate(x, y)
                 with self.subTest("Check Pos", pos=coordinate):
-                    self.assertEqual(1, len(p.get(coordinate)))
+                    self.assertIsInstance(p.get(coordinate), int)

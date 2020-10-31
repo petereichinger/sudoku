@@ -91,9 +91,6 @@ class Puzzle:
         self.__update_puzzle(position, value)
 
     def unset(self, position: Coordinate):
-        if len(self.grid.get(position)) > 1:
-            return
-
         new_valid_values = set(range(1, 10)).difference(self.get_values_in_iter(overlap_generator(position)))
 
         self.grid.set(position, new_valid_values)
@@ -119,7 +116,7 @@ class Puzzle:
         for check_pos in overlap_generator(position):
             check_value = self.grid.get(check_pos)
 
-            if check_value == value_set:
+            if check_value == value:
                 raise LogicError(position, check_pos, value)
 
         for check_pos in overlap_generator(position):
