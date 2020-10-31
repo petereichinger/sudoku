@@ -1,6 +1,9 @@
-from puzzle.Puzzle import Puzzle
+from puzzle.Puzzle import Puzzle, Coordinate
 
 if __name__ == "__main__":
-    test_puzzle = Puzzle("1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9")
+    p = Puzzle()
 
-    print(test_puzzle.check())
+    p.set(Coordinate(1, 1), 1)
+    p.set(Coordinate(1, 2), 2)
+
+    print(p)

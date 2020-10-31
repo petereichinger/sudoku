@@ -1,19 +1,11 @@
-from typing import Optional
-from . import Types
+from .Grid import Coordinate
 
 
-class PositionError(Exception):
-    def __init__(self, cell: Types.Position):
-        self.cell = cell
-
-    def __str__(self):
-        return "Cell: {}".format(self.cell)
-
-
-class InvalidValueError(Exception):
-    def __init__(self, cell: Types.Position, value: Optional[int]):
-        self.cell = cell
+class LogicError(Exception):
+    def __init__(self, first: Coordinate, second: Coordinate, value: int):
+        self.first = first
+        self.second = second
         self.value = value
 
     def __str__(self):
-        return "Cell: {} Value {}".format(self.cell, self.value)
+        return "Same value {} for {} and {}".format(self.value, self.first, self.second)
