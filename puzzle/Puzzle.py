@@ -82,7 +82,7 @@ class Puzzle:
                 self.grid.set(Coordinate(x, y), set(range(1, 10)))
 
     def set(self, position, value: int):
-        if len(self.grid.get(position)) == 1:
+        if isinstance(self.get(position), int):
             self.unset(position)
 
         if not (0 < value < 10):
@@ -99,18 +99,19 @@ class Puzzle:
         self.grid.set(position, new_valid_values)
 
         for other_pos in overlap_generator(position):
-            self.grid.set(other_pos,
-                          set(range(1, 10)).difference(self.get_values_in_iter(overlap_generator(other_pos))))
+            if not isinstance(self.get(other_pos), int):
+                self.grid.set(other_pos,
+                              set(range(1, 10)).difference(self.get_values_in_iter(overlap_generator(other_pos))))
 
     def get_values_in_iter(self, pos_iter):
 
         for pos in pos_iter:
             values = self.grid.get(pos)
 
-            if len(values) == 1:
-                yield next(iter(values))
+            if isinstance(values, int):
+                yield values
 
-    def get(self, position) -> Set[int]:
+    def get(self, position) -> Union[int,Set[int]]:
         return self.grid.get(position)
 
     def __update_puzzle(self, position, value):
@@ -122,9 +123,10 @@ class Puzzle:
                 raise LogicError(position, check_pos, value)
 
         for check_pos in overlap_generator(position):
-            self.grid.get(check_pos).difference_update(value_set)
+            if not isinstance(self.grid.get(check_pos), int):
+                self.grid.get(check_pos).difference_update(value_set)
 
-        self.grid.set(position, value_set)
+        self.grid.set(position, value)
 
     def __can_set(self, position: Coordinate, value) -> bool:
         return all(val is None or val != {value} for val in (self.grid.get(pos) for pos in overlap_generator(position)))
@@ -132,10 +134,10 @@ class Puzzle:
     def __get_str(self, position: Coordinate):
         val = self.grid.get(position)
 
-        if val is None or len(val) > 1:
+        if val is None or not isinstance(val, int):
             return "_"
 
-        return str(next(iter(val)))
+        return str(val)
 
     def __str__(self):
         return '\n'.join(''.join(self.__get_str(Coordinate(x, y)) for x in range(1, 10)) for y in range(1, 10))
