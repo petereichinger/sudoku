@@ -4,58 +4,36 @@ from .Grid import Grid, Coordinate
 from .PuzzleErrors import LogicError
 
 
-def _check_val_range(min_val: int, max_val: int, x: Union[int, Tuple]):
-    if isinstance(x, tuple):
-        return all(_check_val_range(min_val, max_val, tuple_entry) for tuple_entry in x)
-
-    return min_val <= x <= max_val
-
-
-def row_generator(row: int):
-    if not _check_val_range(1, 9, row):
-        raise ValueError(row)
-    for col in range(1, 10):
-        yield col, row
-
-
-def col_generator(col: int):
-    if not _check_val_range(1, 9, col):
-        raise ValueError(col)
-    for row in range(1, 10):
-        yield col, row
-
-
-def block_generator(block):
-    if not _check_val_range(1, 3, block):
-        raise ValueError(block)
-
-    bx, by = block
-    for y in range(1, 4):
-        for x in range(1, 4):
-            yield (bx - 1) * 3 + x, (by - 1) * 3 + y
-
-
-def get_block_index(value):
-    return (value - 1) // 3 + 1
-
-
-def overlap_generator(position: Coordinate) -> Generator[Coordinate, None, None]:
-    block = get_block_index(position.x), get_block_index(position.y)
-    for col in range(1, 10):
-        col_block = get_block_index(col)
-
-        if col_block == block[0]:
-            if col == position.x:
-                for y in (y for y in range(1, 10) if y != position.y):
-                    yield Coordinate(col, y)
-            else:
-                for y in range(1, 4):
-                    yield Coordinate(col, y + (block[1] - 1) * 3)
-        else:
-            yield Coordinate(col, position.y)
-
-
 class Puzzle:
+
+    @staticmethod
+    def __get_block_index(value):
+        return (value - 1) // 3 + 1
+
+    @staticmethod
+    def __conflicting_cells(position: Coordinate) -> Generator[Coordinate, None, None]:
+        block = Puzzle.__get_block_index(position.x), Puzzle.__get_block_index(position.y)
+        for col in range(1, 10):
+            col_block = Puzzle.__get_block_index(col)
+
+            if col_block == block[0]:
+                if col == position.x:
+                    for y in (y for y in range(1, 10) if y != position.y):
+                        yield Coordinate(col, y)
+                else:
+                    for y in range(1, 4):
+                        yield Coordinate(col, y + (block[1] - 1) * 3)
+            else:
+                yield Coordinate(col, position.y)
+
+    def __get_solves(self, pos_iter):
+        return ((pos, solves) for (pos, solves) in ((pos, self.grid.get(pos)) for pos in pos_iter) if
+                isinstance(solves, int))
+
+    def __get_possibilities(self, pos_iter):
+        return ((pos, possibilities) for (pos, possibilities) in ((pos, self.grid.get(pos)) for pos in pos_iter) if
+                isinstance(possibilities, set))
+
     @classmethod
     def from_string(cls, text: str):
         index = 0
@@ -91,42 +69,30 @@ class Puzzle:
         self.__update_puzzle(position, value)
 
     def unset(self, position: Coordinate):
-        new_valid_values = set(range(1, 10)).difference(self.get_values_in_iter(overlap_generator(position)))
+        new_valid_values = set(range(1, 10)).difference(
+            val for pos, val in self.__get_solves(self.__conflicting_cells(position)))
 
         self.grid.set(position, new_valid_values)
 
-        for other_pos in overlap_generator(position):
+        for other_pos in self.__conflicting_cells(position):
             if not isinstance(self.get(other_pos), int):
                 self.grid.set(other_pos,
-                              set(range(1, 10)).difference(self.get_values_in_iter(overlap_generator(other_pos))))
+                              set(range(1, 10)).difference(
+                                  val for pos, val in self.__get_solves(self.__conflicting_cells(other_pos))))
 
-    def get_values_in_iter(self, pos_iter):
-
-        for pos in pos_iter:
-            values = self.grid.get(pos)
-
-            if isinstance(values, int):
-                yield values
-
-    def get(self, position) -> Union[int,Set[int]]:
+    def get(self, position) -> Union[int, Set[int]]:
         return self.grid.get(position)
 
     def __update_puzzle(self, position, value):
-        value_set = {value}
-        for check_pos in overlap_generator(position):
-            check_value = self.grid.get(check_pos)
 
-            if check_value == value:
-                raise LogicError(position, check_pos, value)
+        for pos, val in self.__get_solves(self.__conflicting_cells(position)):
+            if val == value:
+                raise LogicError(position, pos, value)
 
-        for check_pos in overlap_generator(position):
-            if not isinstance(self.grid.get(check_pos), int):
-                self.grid.get(check_pos).difference_update(value_set)
+        for pos, val in self.__get_possibilities(self.__conflicting_cells(position)):
+            self.grid.get(pos).difference_update({value})
 
         self.grid.set(position, value)
-
-    def __can_set(self, position: Coordinate, value) -> bool:
-        return all(val is None or val != {value} for val in (self.grid.get(pos) for pos in overlap_generator(position)))
 
     def __get_str(self, position: Coordinate):
         val = self.grid.get(position)

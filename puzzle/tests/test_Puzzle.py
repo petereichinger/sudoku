@@ -1,6 +1,6 @@
 from unittest import TestCase
 from puzzle.Grid import Coordinate
-from puzzle.Puzzle import Puzzle, overlap_generator
+from puzzle.Puzzle import Puzzle
 from puzzle.PuzzleErrors import LogicError
 from random import Random
 
@@ -14,13 +14,6 @@ class TestPuzzle(TestCase):
         r = Random(666)
         r.shuffle(self.positions)
         r.shuffle(self.values)
-
-    def test_overlap_generator(self):
-        for coord in self.positions[0:20]:
-            with self.subTest("overlap_generator with coord", coord=coord):
-                check_values = list(overlap_generator(coord))
-                self.assertEqual(len(check_values), 20)
-                self.assertTrue(coord not in check_values)
 
     def test_from_string_empty(self):
         p = Puzzle.from_string("")
@@ -83,7 +76,7 @@ class TestPuzzle(TestCase):
 
     def test_valid_puzzle(self):
 
-        p = Puzzle.from_string("7,2,6,4,9,3,8,1,5,\
+        sudoku = "7,2,6,4,9,3,8,1,5,\
                                 3,1,5,7,2,8,9,4,6,\
                                 4,8,9,6,5,1,2,3,7,\
                                 8,5,2,1,4,7,6,9,3,\
@@ -91,10 +84,15 @@ class TestPuzzle(TestCase):
                                 9,4,1,3,6,2,7,5,8,\
                                 1,9,4,8,3,6,5,7,2,\
                                 5,6,7,2,1,4,3,8,9,\
-                                2,3,8,5,7,9,4,6,1")
+                                2,3,8,5,7,9,4,6,1"
+        p = Puzzle.from_string(sudoku)
 
-        for x in range(1, 10):
-            for y in range(1, 10):
+        values = [int(str_val) for str_val in sudoku.split(",")]
+        index = 0
+        for y in range(1, 10):
+            for x in range(1, 10):
                 coordinate = Coordinate(x, y)
                 with self.subTest("Check Pos", pos=coordinate):
                     self.assertIsInstance(p.get(coordinate), int)
+                    self.assertEqual(values[index], p.get(coordinate))
+                    index += 1

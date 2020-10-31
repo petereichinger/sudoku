@@ -1,4 +1,4 @@
-from puzzle.Puzzle import Puzzle, Coordinate, overlap_generator
+from puzzle.Puzzle import Puzzle, Coordinate
 
 if __name__ == "__main__":
     p = Puzzle.from_string("7,2,6,4,9,3,8,1,5,\
@@ -11,9 +11,6 @@ if __name__ == "__main__":
                             5,6,7,2,1,4,3,8,9,\
                             2,3,8,5,7,9,4,6,1")
 
-    print (list(overlap_generator(Coordinate(4,5))))
-
-    print(p.get(Coordinate(4,5)))
-
+    print(list(p.__get_possibilities(Coordinate(x, y) for x in range(1, 10) for y in range(1, 10))))
 
     print(p)
