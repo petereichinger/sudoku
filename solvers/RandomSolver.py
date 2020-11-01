@@ -23,5 +23,5 @@ class RandomSolver:
                 possible_resets = set(pos for pos, value in self.puzzle.get_solved_positions())
                 possible_resets.difference_update(already_set_positions)
                 if len(possible_resets) > 0:
-                    unset_entry = self.random.sample(possible_resets, 1)
-                    self.puzzle.unset(unset_entry[0])
+                    unset_entry = self.random.choice(list(possible_resets))
+                    self.puzzle.unset(unset_entry)
