@@ -1,7 +1,7 @@
-from typing import Dict, Union, Tuple, Generator, Set
+from typing import Dict, Union, Generator, Set
 
 from .Grid import Grid, Coordinate
-from .PuzzleErrors import LogicError
+from .PuzzleErrors import *
 
 
 class Puzzle:
@@ -25,6 +25,22 @@ class Puzzle:
                         yield Coordinate(col, y + (block[1] - 1) * 3)
             else:
                 yield Coordinate(col, position.y)
+
+    @staticmethod
+    def __all_cells_generator():
+        return (Coordinate(x, y) for x in range(1, 10) for y in range(1, 10))
+
+    def get_solved_positions(self):
+        return self.__get_solves(self.__all_cells_generator())
+
+    def get_unsolved_positions(self):
+        return self.__get_possibilities(self.__all_cells_generator())
+
+    def is_solved(self):
+        return all(isinstance(self.get(Coordinate(x, y)), int) for x in range(1, 10) for y in range(1, 10))
+
+    def valid_solve(self):
+        return sum(self.get(pos) for pos in self.__all_cells_generator()) == 405
 
     def __get_solves(self, pos_iter):
         return ((pos, solves) for (pos, solves) in ((pos, self.grid.get(pos)) for pos in pos_iter) if
@@ -87,10 +103,13 @@ class Puzzle:
 
         for pos, val in self.__get_solves(self.__conflicting_cells(position)):
             if val == value:
-                raise LogicError(position, pos, value)
+                raise DuplicateError(position, pos, value)
 
         for pos, val in self.__get_possibilities(self.__conflicting_cells(position)):
-            self.grid.get(pos).difference_update({value})
+            new_vals = self.grid.get(pos).difference({value})
+            if len(new_vals) == 0:
+                raise InvalidSetError(position, pos, value)
+            self.grid.set(pos, new_vals)
 
         self.grid.set(position, value)
 

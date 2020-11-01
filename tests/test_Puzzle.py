@@ -1,7 +1,7 @@
 from unittest import TestCase
 from puzzle.Grid import Coordinate
 from puzzle.Puzzle import Puzzle
-from puzzle.PuzzleErrors import LogicError
+from puzzle.PuzzleErrors import DuplicateError
 from random import Random
 
 
@@ -39,7 +39,7 @@ class TestPuzzle(TestCase):
     def test_set_invalid(self):
         p = Puzzle()
         p.set(Coordinate(1, 1), 1)
-        with self.assertRaises(LogicError):
+        with self.assertRaises(DuplicateError):
             p.set(Coordinate(1, 2), 1)
 
     def test_unset(self):

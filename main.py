@@ -1,16 +1,28 @@
-from puzzle.Puzzle import Puzzle, Coordinate
+from puzzle.Puzzle import Puzzle
+from solvers.RandomSolver import RandomSolver
+import time
 
 if __name__ == "__main__":
-    p = Puzzle.from_string("7,2,6,4,9,3,8,1,5,\
-                            3,1,5,7,2,8,9,4,6,\
-                            4,8,9,6,5,1,2,3,7,\
-                            8,5,2,1,4,7,6,9,3,\
-                            6,7,3,9,8,5,1,2,4,\
-                            9,4,1,3,6,2,7,5,8,\
-                            1,9,4,8,3,6,5,7,2,\
-                            5,6,7,2,1,4,3,8,9,\
-                            2,3,8,5,7,9,4,6,1")
 
-    print(list(p.__get_possibilities(Coordinate(x, y) for x in range(1, 10) for y in range(1, 10))))
+    times = []
+    for x in range(0, 100):
+        p = Puzzle.from_string(
+            ",2 ,6 ,,,,8 ,1 ,,\
+    3 ,,,7 ,,8 ,,,6,\
+    4 ,,,,5 ,,,,7,\
+    ,5 ,,1 ,,7 ,,9 ,,\
+    ,,3 ,9 ,,5 ,1 ,,,\
+    ,4 ,,3 ,,2 ,,5 ,,\
+    1 ,,,,3 ,,,,2,\
+    5 ,,,2 ,,4 ,,,9,\
+    ,3 ,8 ,,,,4 ,6 ,")
 
-    print(p)
+        r = RandomSolver(p)
+
+        t = time.process_time()
+        r.run()
+        elapsed_time = time.process_time() - t
+
+        times.append(elapsed_time)
+
+    print(sum(times) / len(times))
