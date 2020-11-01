@@ -33,3 +33,11 @@ class Grid:
 
     def clear_all(self):
         self.values.clear()
+
+    def get_next_coordinate(self, coord: Coordinate):
+        x,y = coord
+        if x == self.width:
+            if y == self.height:
+                return None
+            return Coordinate(1, y + 1)
+        return Coordinate(x + 1, y)

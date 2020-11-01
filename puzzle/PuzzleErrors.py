@@ -19,3 +19,8 @@ class InvalidSetError(Exception):
 
     def __str__(self):
         return "Setting {} to {} removes all possibilities from {}".format(self.set_pos, self.value, self.invalid_pos)
+
+
+class UnsolvableError(Exception):
+    def __str__(self):
+        return "Puzzle is unsolvable"

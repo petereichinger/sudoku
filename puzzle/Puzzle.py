@@ -30,17 +30,29 @@ class Puzzle:
     def __all_cells_generator():
         return (Coordinate(x, y) for x in range(1, 10) for y in range(1, 10))
 
+    def __from_starting_cell_generator(self, start: Coordinate):
+        next_cell = self.grid.get_next_coordinate(start)
+        while next_cell:
+            yield next_cell
+            next_cell = self.grid.get_next_coordinate(next_cell)
+
+
     def get_solved_positions(self):
         return self.__get_solves(self.__all_cells_generator())
 
     def get_unsolved_positions(self):
         return self.__get_possibilities(self.__all_cells_generator())
 
-    def is_solved(self):
-        return all(isinstance(self.get(Coordinate(x, y)), int) for x in range(1, 10) for y in range(1, 10))
+    def get_next_unsolved(self, position):
+        for cell in self.__from_starting_cell_generator(position):
+            values = self.get(cell)
+            if isinstance(values, set):
+                return cell, values
+        return None
 
-    def valid_solve(self):
-        return sum(self.get(pos) for pos in self.__all_cells_generator()) == 405
+
+    def is_solved(self):
+        return sum(value for pos, value in self.get_solved_positions()) == 405
 
     def __get_solves(self, pos_iter):
         return ((pos, solves) for (pos, solves) in ((pos, self.grid.get(pos)) for pos in pos_iter) if

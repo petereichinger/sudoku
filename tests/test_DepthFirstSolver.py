@@ -1,12 +1,12 @@
 from unittest import TestCase
 from puzzle.Puzzle import Puzzle
-from solvers.RandomSolver import RandomSolver
+from solvers.DepthFirstSolver import DepthFirstSolver
 
 
-class TestRandomSolver(TestCase):
+class TestDepthFirstSolver(TestCase):
     def test_run_empty(self):
         p = Puzzle()
-        r = RandomSolver(p, 666)
+        r = DepthFirstSolver(p)
         r.run()
 
         self.assertTrue(p.is_solved())
@@ -23,7 +23,7 @@ class TestRandomSolver(TestCase):
              5 ,,,2 ,,4 ,,,9,\
              ,3 ,8 ,,,,4 ,6 ,")
 
-        r = RandomSolver(p, 666)
+        r = DepthFirstSolver(p)
         r.run()
 
         self.assertTrue(p.is_solved())
